@@ -1,0 +1,29 @@
+<launch>
+  <param name="/use_sim_time" value="true" />
+  <arg name="bagfile" default="/home/imstevenpmwyca/Documents/steven/bags/deca/deca_output2.bag" />
+  
+  <node pkg="slam_toolbox" type="sync_slam_toolbox_node" name="slam_toolbox" output="screen">
+    <rosparam command="load" file="/home/imstevenpmwyca/Desktop/stfork/src/slam_toolbox/slam_toolbox/config/elodiest.yaml" />
+  </node>
+  
+  <param name="robot_description" command="$(find xacro)/xacro '$(find elodie_description)/urdf/elodie_ign.xacro' add_plug:=false"/>
+  
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+  
+  <node pkg="tf2_ros" type="static_transform_publisher" name="auxodom" args="0.25 0.0 0.225 0 0 0 odom camera_tracking_odom_frame" />
+  
+  <node pkg="rosbag" type="play" name="rosbagplay" args="-q --clock $(arg bagfile)">
+  	<remap from="odom" to="odom2"/>
+  </node>
+  
+  <node pkg="robot_localization" type="ekf_localization_node" name="ekf_se" clear_params="true">
+    <rosparam command="load" file="/home/imstevenpmwyca/Desktop/stfork/src/robot_localization/params/bigsystest.yaml" />
+
+    <!--  Placeholder for output topic remapping-->
+    <remap from="odometry/filtered" to="odom"/>
+    <!--<remap from="accel/filtered" to=""/>
+    -->
+
+  </node>
+</launch>

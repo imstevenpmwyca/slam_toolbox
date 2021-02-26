@@ -49,6 +49,8 @@
 #include <boost/serialization/array.hpp>
 #include <boost/version.hpp>
 
+#include <iostream>
+
 #ifdef USE_POCO
 #include <Poco/Mutex.h>
 #endif
@@ -4443,7 +4445,7 @@ namespace karto
   {
     GridStates_Unknown = 0,
     GridStates_Occupied = 100,
-    GridStates_Free = 255
+    GridStates_Free = 200
   } GridStates;
 
   ////////////////////////////////////////////////////////////////////////////////////////
@@ -6008,7 +6010,7 @@ namespace karto
         throw Exception("Resolution cannot be 0");
       }
 
-      m_pMinPassThrough = new Parameter<kt_int32u>("MinPassThrough", 2);
+      m_pMinPassThrough = new Parameter<kt_int32u>("MinPassThrough", 5);
       m_pOccupancyThreshold = new Parameter<kt_double>("OccupancyThreshold", 0.1);
 
       GetCoordinateConverter()->SetScale(1.0 / resolution);
@@ -6321,7 +6323,7 @@ namespace karto
           kt_int32u* pCellHitCntPtr = m_pCellHitsCnt->GetDataPointer();
 
           // increment cell pass through and hit count
-          pCellPassCntPtr[index]++;
+          //pCellPassCntPtr[index]++;
           pCellHitCntPtr[index]++;
 
           if (doUpdate)
@@ -6345,15 +6347,20 @@ namespace karto
       if (cellPassCnt > m_pMinPassThrough->GetValue())
       {
         kt_double hitRatio = static_cast<kt_double>(cellHitCnt) / static_cast<kt_double>(cellPassCnt);
-
-        if (hitRatio > m_pOccupancyThreshold->GetValue())
+        
+        kt_double ratioscaled= (-100 * hitRatio + 200);
+        //std::cout << ratioscaled << "\n";
+        
+        *pCell = (kt_int8u) ratioscaled;
+        
+        /*if (hitRatio > m_pOccupancyThreshold->GetValue())
         {
           *pCell = GridStates_Occupied;
         }
         else
         {
           *pCell = GridStates_Free;
-        }
+        }*/
       }
     }
 

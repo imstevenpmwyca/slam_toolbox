@@ -119,7 +119,18 @@ inline void toNavMap(
     for (kt_int32s x = 0; x < width; x++) 
     {
       kt_int8u value = occ_grid->GetValue(karto::Vector2<kt_int32s>(x, y));
-      switch (value)
+      
+      
+      
+      if (value==karto::GridStates_Unknown){
+      	map.data[MAP_IDX(map.info.width, x, y)] = -1;
+      }
+      else{
+      	value = -value + 200;
+      	map.data[MAP_IDX(map.info.width, x, y)] = value;
+      }
+      
+      /*switch (radioscaled)
       {
         case karto::GridStates_Unknown:
           map.data[MAP_IDX(map.info.width, x, y)] = -1;
@@ -130,10 +141,11 @@ inline void toNavMap(
         case karto::GridStates_Free:
           map.data[MAP_IDX(map.info.width, x, y)] = 0;
           break;
-        default:
-          ROS_WARN("Encountered unknown cell value at %d, %d", x, y);
+        default:		
+          map.data[MAP_IDX(map.info.width, x, y)] = value;
+          //ROS_WARN("Encountered unknown cell value at %d, %d", x, y);
           break;
-      }
+      }*/
     }
   }
   return;
